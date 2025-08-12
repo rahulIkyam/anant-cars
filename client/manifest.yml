@@ -1,0 +1,8 @@
+applications:
+  - name: anant-cars-frontend
+    buildpacks:
+      - staticfile_buildpack
+    path: dist
+    memory: 64M
+
+    # cf push anant-cars-frontend -b staticfile_buildpack

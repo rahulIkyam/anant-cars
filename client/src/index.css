@@ -1,0 +1,15 @@
+
+@tailwind utilities;
+
+/* UI5 WebComponents overrides */
+.ui5-card-root, ui5-card {
+  display: block !important;
+  width: 100% !important;
+}
+
+/* Layout fixes */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
