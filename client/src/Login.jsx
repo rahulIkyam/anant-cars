@@ -1,9 +1,11 @@
 import {
     Button,
     Card,
+    Dialog,
     FlexBox,
     Input,
     Label,
+    MessageStrip,
     Title
 } from '@ui5/webcomponents-react';
 import React, { useRef, useState } from 'react';
@@ -19,13 +21,15 @@ function Login() {
     const [userEmail, setuserEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [showForgotPassword, setShowForgotPassword] = useState(false);
-    const [isResetView, setIsResetView] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogContent, setDialogContent] = useState('');
+    const dialogRef = useRef(null);
+
 
 
     const navigate = useNavigate();
 
-    const passwordRef = useRef(null);
+
 
     const handleLogin = async () => {
         try {
@@ -34,15 +38,18 @@ function Login() {
                 params: { userEmail, password }
             });
 
-            if(res.data.length > 0) {
-                console.log("Login success:", res.data);
+            if (res.data.length > 0) {
+                const userData = res.data[0];
+                sessionStorage.setItem("userData", JSON.stringify(userData));
                 navigate("/dashboard");
             } else {
-                alert("Invalid credentials");
+                setDialogContent("Invalid Credentials");
+                setDialogOpen(true);
             }
         } catch (error) {
             console.error("Login error:", error);
-            alert("Login Failed");
+            setDialogContent("Login Failed");
+            setDialogOpen(true);
         }
     };
 
@@ -104,102 +111,79 @@ function Login() {
                                 <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Sign In</span>
                             </div>
 
-                            {!isResetView ? (
-                                <form
-                                    onSubmit={(e) => {
-                                        e.preventDefault();
-                                        handleLogin();
-                                    }}
-                                    style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', alignItems: 'center' }}
-                                >
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    handleLogin();
+                                }}
+                                style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', alignItems: 'center' }}
+                            >
+                                <Input
+                                    placeholder="Enter Email"
+                                    value={userEmail}
+                                    onInput={(e) => setuserEmail(e.target.value)}
+                                    style={{ width: '100%' }}
+                                />
+
+                                <div style={{ position: 'relative', width: '100%' }}>
                                     <Input
-                                        placeholder="Enter Email"
-                                        value={userEmail}
-                                        onInput={(e) => setuserEmail(e.target.value)}
-                                        style={{ width: '100%' }}
+                                        placeholder="Enter Password"
+                                        type={showPassword ? "text" : "password"}
+                                        value={password}
+                                        onInput={(e) => setPassword(e.target.value)}
+                                        style={{ width: '100%', paddingRight: '60px' }}
                                     />
+                                    <span
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: 0,
+                                            height: '100%',
+                                            width: '60px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: '#0a6ed1',
+                                            fontSize: '14px',
+                                            cursor: 'pointer',
+                                            backgroundColor: 'transparent',
+                                        }}
+                                    >
+                                        {showPassword ? "Hide" : "Show"}
+                                    </span>
+                                </div>
 
-                                    <div style={{ position: 'relative', width: '100%' }}>
-                                        <Input
-                                            placeholder="Enter Password"
-                                            type={showPassword ? "text" : "password"}
-                                            value={password}
-                                            onInput={(e) => setPassword(e.target.value)}
-                                            style={{ width: '100%', paddingRight: '60px' }}
-                                        />
-                                        <span
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            style={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                right: 0,
-                                                height: '100%',
-                                                width: '60px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: '#0a6ed1',
-                                                fontSize: '14px',
-                                                cursor: 'pointer',
-                                                backgroundColor: 'transparent',
-                                            }}
-                                        >
-                                            {showPassword ? "Hide" : "Show"}
-                                        </span>
-                                    </div>
-
-                                    <Button 
-                                    design="Emphasized" 
-                                    style={{ width: '100%' }} 
+                                <Button
+                                    design="Emphasized"
+                                    style={{ width: '100%' }}
                                     type="submit"
                                     onClick={(e) => {
                                         handleLogin();
                                     }}>
-                                        Sign In
-                                    </Button>
-
-                                    <span
-                                        style={{
-                                            color: '#0a6ed1',
-                                            cursor: 'pointer',
-                                            textDecoration: 'none',
-                                            fontSize: '14px',
-                                            paddingBottom: '2rem',
-                                            paddingTop: '1rem',
-                                        }}
-                                        onClick={() => setIsResetView(true)}
-                                    >
-                                        Forgot password?
-                                    </span>
-                                </form>
-                            ) : (
-                                <div style={{ width: '100%', position: 'relative' }}>
-                                    <div style={{ textAlign: 'center', paddingTop: '1rem', paddingBottom: '1rem' }}>
-                                        <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Reset password</span>
-                                        <p style={{ marginTop: '1rem', fontSize: '14px' }}>
-                                            We've sent you an e-mail to your primary e-mail<br />
-                                            <b>{userEmail || "your-email@domain.com"}</b><br /><br />
-                                            <br />
-                                            Use the link in the e-mail to reset your password.
-                                        </p>
-                                        <span
-                                            onClick={() => setIsResetView(false)}
-                                            style={{
-                                                color: '#0a6ed1',
-                                                fontSize: '14px',
-                                                cursor: 'pointer',
-                                                textDecoration: 'underline',
-                                            }}
-                                        >
-                                            Cancel
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
+                                    Sign In
+                                </Button>
+                            </form>
 
                         </FlexBox>
                     </div>
                 </Card>
+
+                <Dialog
+                    ref={dialogRef}
+                    open={dialogOpen}
+                    headerText='Login Message'
+                    onAfterClose={() => setDialogOpen(false)}
+                >
+                    {dialogContent}
+                    <Button
+                        onClick={() => setDialogOpen(false)}
+                        design='Emphasized'
+                        slot='footer'
+                    >
+                        Ok
+                    </Button>
+                </Dialog>
             </FlexBox>
         </div>
     );

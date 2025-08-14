@@ -1,7 +1,7 @@
 import React from 'react';
 import { Icon, Button, Card, CardHeader } from '@ui5/webcomponents-react';
 import { useNavigate } from 'react-router-dom';
-import "@ui5/webcomponents-icons/dist/business-card.js";
+import "@ui5/webcomponents-icons/dist/sales-order.js";
 import "@ui5/webcomponents-icons/dist/group.js";
 import "@ui5/webcomponents-icons/dist/supplier.js";
 
@@ -10,19 +10,11 @@ function Dashboard() {
 
   const sections = [
     {
-      header: "Master",
+      header: "Application",
       cards: [
-        { title: "General Master", icon: "business-card", route: "/master" },
+        { title: "Sales Register", icon: "sales-order", route: "/sales-register" },
       ]
     },
-    {
-      header: "Customer Master",
-      cards: [{ title: "Customer Info", icon: "group", route: "/customer-master" }]
-    },
-    {
-      header: "Vendor Master",
-      cards: [{ title: "Vendor Info", icon: "supplier", route: "/vendor-master" }]
-    }
   ];
 
   return (

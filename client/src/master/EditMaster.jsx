@@ -15,6 +15,7 @@ import {
 } from '@ui5/webcomponents-react';
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useMaster } from './MasterContext';
 
 function EditMaster() {
 
@@ -22,23 +23,28 @@ function EditMaster() {
     const navigate = useNavigate();
     const { state = {} } = location;
     const { rowData } = state;
+    const { masterState } = useMaster();
 
     const [formData, setFormData] = useState({
-        fileName: '',
-        registerNumber: '',
-        invoiceNumber: '',
-        fullModelCode: '',
-        vinNo: '',
-        engineNo: '',
-        jobType: '',
-        placeOfSupply: '',
-        contactName: '',
-        contactPhone: '',
-        customerBillTo: '',
-        customerShipTo: '',
-        gstin: '',
-        invoiceType: '',
-        branchCode: '',
+        invoiceAmount: '',
+        engineNumber: '',
+        modelDescription: '',
+        sellingPrice: '',
+        dealerDiscount: '',
+        oemSchemeDiscount: '',
+        corporateDiscountAmount: '',
+        tcsAmount: '',
+        cessTaxRate: '',
+        cessTaxAmount: '',
+        cgstTaxRate: '',
+        cgstTaxAmount: '',
+        sgstTaxRate: '',
+        sgstTaxAmount: '',
+        igstTaxRate: '',
+        igstTaxAmount: '',
+        ugstTaxRate: '',
+        ugstTaxAmount: '',
+        epcAmount: ''
     });
 
     useEffect(() => {
@@ -46,21 +52,25 @@ function EditMaster() {
         console.log(rowData);
         if (rowData) {
             setFormData({
-                fileName: rowData.header.fileName || '',
-                registerNumber: rowData.header.registerNumber || '',
-                invoiceNumber: rowData.header.invoiceNumber || '',
-                fullModelCode: rowData.header.fullModelCode || '',
-                vinNo: rowData.header.vinNo || '',
-                engineNo: rowData.header.engineNo || '',
-                jobType: rowData.header.jobType || '',
-                contactName: rowData.header.contactName || '',
-                contactPhone: rowData.header.contactPhone || '',
-                customerBillTo: rowData.header.customerBillTo || '',
-                customerShipTo: rowData.header.customerShipTo || '',
-                gstin: rowData.header.gstin || '',
-                invoiceType: rowData.header.invoiceType || '',
-                branchCode: rowData.header.branchCode || '',
-                placeOfSupply: rowData.header.placeOfSupply || '',
+                invoiceAmount: rowData.InvoiceAmount_V || '',
+                engineNumber: rowData.EngineNumber || '',
+                modelDescription: rowData.ModelDescription || '',
+                sellingPrice: rowData.SellingPrice_V || '',
+                dealerDiscount: rowData.DealerDiscount_V || '',
+                oemSchemeDiscount: rowData.OEMSchemeDiscount_V || '',
+                corporateDiscountAmount: rowData.CorporateDiscountAmount_V || '',
+                tcsAmount: rowData.TCSAmount_V || '',
+                cessTaxRate: rowData.CESSTaxRate || '',
+                cessTaxAmount: rowData.CESSTaxAmount_V || '',
+                cgstTaxRate: rowData.CGSTTaxRate || '',
+                cgstTaxAmount: rowData.CGSTTaxAmount_V || '',
+                sgstTaxRate: rowData.SGSTTaxRate || '',
+                sgstTaxAmount: rowData.SGSTTaxAmount_V || '',
+                igstTaxRate: rowData.IGSTTaxRate || '',
+                igstTaxAmount: rowData.IGSTTaxAmount_V || '',
+                ugstTaxRate: rowData.UGSTTaxRate || '',
+                ugstTaxAmount: rowData.UGSTTaxAmount_V || '',
+                epcAmount: rowData.EPCAmount_V || '',
             });
         }
     }, [rowData]);
@@ -78,7 +88,7 @@ function EditMaster() {
     };
 
     const handleBack = () => {
-        navigate('/master');
+        navigate('/sales-register');
     };
 
     const lineItemColumns = [
@@ -148,70 +158,70 @@ function EditMaster() {
                         <div style={{ display: 'flex', gap: '2rem' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>File Name</Label>
+                                    <Label showColon style={{ width: '80px' }}>Invoice Amount</Label>
                                     <Input
                                         disabled
-                                        value={formData.fileName}
-                                        onChange={(e) => handleInputChange('fileName', e.target.value)}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Register No</Label>
-                                    <Input
-                                        disabled
-                                        value={formData.registerNumber}
-                                        onChange={(e) => handleInputChange('registerNumber', e.target.value)}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Invoice No</Label>
-                                    <Input
-                                        disabled
-                                        value={formData.invoiceNumber}
-                                        onChange={(e) => handleInputChange('invoiceNumber', e.target.value)}
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Model Code</Label>
-                                    <Input
-                                        disabled
-                                        value={formData.fullModelCode}
-                                        onChange={(e) => handleInputChange('fullModelCode', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>VIN No</Label>
-                                    <Input
-                                        disabled
-                                        value={formData.vinNo}
-                                        onChange={(e) => handleInputChange('vinNo', e.target.value)}
+                                        value={formData.invoiceAmount}
+                                        onChange={(e) => handleInputChange('invoiceAmount', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     <Label showColon style={{ width: '80px' }}>Engine No</Label>
                                     <Input
                                         disabled
-                                        value={formData.engineNo}
-                                        onChange={(e) => handleInputChange('engineNo', e.target.value)}
+                                        value={formData.engineNumber}
+                                        onChange={(e) => handleInputChange('engineNumber', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Job Type</Label>
+                                    <Label showColon style={{ width: '80px' }}>Model Description</Label>
                                     <Input
                                         disabled
-                                        value={formData.jobType}
-                                        onChange={(e) => handleInputChange('jobType', e.target.value)}
+                                        value={formData.modelDescription}
+                                        onChange={(e) => handleInputChange('modelDescription', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Place of Supply</Label>
+                                    <Label showColon style={{ width: '80px' }}>Selling Price</Label>
                                     <Input
                                         disabled
-                                        value={formData.placeOfSupply}
-                                        onChange={(e) => handleInputChange('placeOfSupply', e.target.value)}
+                                        value={formData.sellingPrice}
+                                        onChange={(e) => handleInputChange('sellingPrice', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>Dealer Discount</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.dealerDiscount}
+                                        onChange={(e) => handleInputChange('dealerDiscount', e.target.value)}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>OEM Scheme Discount</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.oemSchemeDiscount}
+                                        onChange={(e) => handleInputChange('oemSchemeDiscount', e.target.value)}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>Corporate Discount Amount</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.corporateDiscountAmount}
+                                        onChange={(e) => handleInputChange('corporateDiscountAmount', e.target.value)}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>TCS Amount</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.tcsAmount}
+                                        onChange={(e) => handleInputChange('tcsAmount', e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -220,72 +230,108 @@ function EditMaster() {
                         <div style={{ display: 'flex', gap: '2rem' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Contact Name</Label>
+                                    <Label showColon style={{ width: '80px' }}>CESS Tax Rate</Label>
                                     <Input
                                         disabled
-                                        value={formData.contactName}
-                                        onChange={(e) => handleInputChange('contactName', e.target.value)}
+                                        value={formData.cessTaxRate}
+                                        onChange={(e) => handleInputChange('cessTaxRate', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Contact Phone</Label>
+                                    <Label showColon style={{ width: '80px' }}>CESS Tax Amount</Label>
                                     <Input
                                         disabled
-                                        value={formData.contactPhone}
-                                        onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                                        value={formData.cessTaxAmount}
+                                        onChange={(e) => handleInputChange('cessTaxAmount', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Bill To</Label>
+                                    <Label showColon style={{ width: '80px' }}>CGST Tax Rate</Label>
                                     <Input
                                         disabled
-                                        value={formData.customerBillTo}
-                                        onChange={(e) => handleInputChange('customerBillTo', e.target.value)}
+                                        value={formData.cgstTaxRate}
+                                        onChange={(e) => handleInputChange('cgstTaxRate', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Ship To</Label>
+                                    <Label showColon style={{ width: '80px' }}>CGST Tax Amount</Label>
                                     <Input
                                         disabled
-                                        value={formData.customerShipTo}
-                                        onChange={(e) => handleInputChange('customerShipTo', e.target.value)}
+                                        value={formData.cgstTaxAmount}
+                                        onChange={(e) => handleInputChange('cgstTaxAmount', e.target.value)}
                                     />
                                 </div>
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>GSTIN</Label>
+                                    <Label showColon style={{ width: '80px' }}>SGST Tax Rate</Label>
                                     <Input
                                         disabled
-                                        value={formData.gstin}
-                                        onChange={(e) => handleInputChange('gstin', e.target.value)}
+                                        value={formData.sgstTaxRate}
+                                        onChange={(e) => handleInputChange('sgstTaxRate', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Invoice Type</Label>
+                                    <Label showColon style={{ width: '80px' }}>SGST Tax Amount</Label>
                                     <Input
                                         disabled
-                                        value={formData.invoiceType}
-                                        onChange={(e) => handleInputChange('invoiceType', e.target.value)}
+                                        value={formData.sgstTaxAmount}
+                                        onChange={(e) => handleInputChange('sgstTaxAmount', e.target.value)}
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Label showColon style={{ width: '80px' }}>Branch Code</Label>
+                                    <Label showColon style={{ width: '80px' }}>IGST Tax Rate</Label>
                                     <Input
                                         disabled
-                                        value={formData.branchCode}
-                                        onChange={(e) => handleInputChange('branchCode', e.target.value)}
+                                        value={formData.igstTaxRate}
+                                        onChange={(e) => handleInputChange('igstTaxRate', e.target.value)}
                                     />
                                 </div>
-                                <div style={{ height: '40px', visibility: 'hidden' }}></div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>IGST Tax Amount</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.igstTaxAmount}
+                                        onChange={(e) => handleInputChange('igstTaxAmount', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '2rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>UGST Tax Rate</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.ugstTaxRate}
+                                        onChange={(e) => handleInputChange('ugstTaxRate', e.target.value)}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>UGST Tax Amount</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.ugstTaxAmount}
+                                        onChange={(e) => handleInputChange('ugstTaxAmount', e.target.value)}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Label showColon style={{ width: '80px' }}>EPC Amount</Label>
+                                    <Input
+                                        disabled
+                                        value={formData.epcAmount}
+                                        onChange={(e) => handleInputChange('epcAmount', e.target.value)}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </Toolbar>
                 </div>
 
 
-                <div
+                {/* <div
                     style={{
                         flex: 1,
                         overflow: 'hidden',
@@ -363,7 +409,7 @@ function EditMaster() {
                             ))}
                         </Table>
                     </div>
-                </div>
+                </div> */}
             </Page>
 
 

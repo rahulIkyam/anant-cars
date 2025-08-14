@@ -1,17 +1,20 @@
 import React, { useEffect, useRef } from 'react';
-import { SideNavigation, SideNavigationItem } from '@ui5/webcomponents-react';
+import { SideNavigation, SideNavigationItem, SideNavigationSubItem } from '@ui5/webcomponents-react';
 import '@ui5/webcomponents-icons/dist/home.js';
 import '@ui5/webcomponents-icons/dist/employee.js';
 import '@ui5/webcomponents-icons/dist/shipping-status.js';
 import "@ui5/webcomponents-icons/dist/group.js";
-import "@ui5/webcomponents-icons/dist/business-card.js";
+import "@ui5/webcomponents-icons/dist/documents.js";
+import "@ui5/webcomponents-icons/dist/sales-document.js";
 import "@ui5/webcomponents-icons/dist/supplier.js";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useMaster } from '../master/MasterContext';
 
 function Sidebar({ collapsed }) {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef(null);
+  const { resetMasterState } = useMaster();
 
   const pathToIdMap = {
     "/dashboard": "dashboard",
@@ -36,16 +39,10 @@ function Sidebar({ collapsed }) {
 
     switch (selectedId) {
       case "dashboard":
-        navigate("/dashboard");
+        navigate("/dashboard", resetMasterState());
         break;
-      case "main-master":
-        navigate("/master");
-        break;
-      case "customer":
-        navigate("/customer-master");
-        break;
-      case "vendor":
-        navigate("/vendor-master");
+      case "sales-register":
+        navigate("/sales-register");
         break;
       default:
         break;
@@ -62,9 +59,9 @@ function Sidebar({ collapsed }) {
       >
         <SideNavigationItem icon="" text="" id="" />
         <SideNavigationItem icon="home" text="Dashboard" id="dashboard" />
-        <SideNavigationItem icon="business-card" text="Master" id="main-master" />
-        <SideNavigationItem icon="group" text="Customer Master" id="customer" />
-        <SideNavigationItem icon="supplier" text="Vendor Master" id="vendor" />
+        <SideNavigationItem icon="documents" text="Application" id="main-application" >
+          <SideNavigationSubItem icon='sales-document' text='Sales Register' id='sales-register'/>
+        </SideNavigationItem>
       </SideNavigation>
     </div>
   );

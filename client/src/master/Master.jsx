@@ -8,7 +8,8 @@ import {
   Bar,
   AnalyticalTable,
   Toolbar,
-  ToolbarSpacer
+  ToolbarSpacer,
+  BusyIndicator
 } from '@ui5/webcomponents-react';
 import "@ui5/webcomponents-icons/dist/edit.js";
 import "@ui5/webcomponents-icons/dist/AllIcons.js";
@@ -17,94 +18,50 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initialTableData } from './masterData';
 import { useEffect } from 'react';
+import { useMaster } from './MasterContext';
+import InvoiceNumberSelector from '../components/selectors/InvoiceNumberSelector';
+import CustomerNameSelector from '../components/selectors/CustomerNameSelector';
+import HsnSelector from '../components/selectors/HsnSelector';
 
 function Master() {
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  const flattenData = (data) => {
-    return data.map(item => ({
-      ...item.header,
-      actions: null,
-      _originalData: item
-    }));
-  };
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [branch, setBranch] = useState();
-  const [toDate, setToDate] = useState();
-  const [fromDate, setFromDate] = useState();
-  const [park, setPark] = useState();
-  const [tableData, setTableData] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [selectedRowIds, setSelectedRowIds] = useState({});
-  const [selectedRowsData, setSelectedRowsData] = useState([]);
+
+  const { masterState, setMasterState } = useMaster();
+  const {
+    loading, error, branch, toDate, fromDate, park,
+    tableData, totalCount, selectedRowIds, selectedRowsData, invoiceNumber,
+    dealerLocationName, customerName, hsn
+  } = masterState;
+
+  const updateState = (updates) => {
+    setMasterState(prev => ({ ...prev, ...updates }));
+  };
+
+
 
   const columns = [
-    { Header: <div className='font-bold pl-2'>SAP UUID</div>, accessor: 'SAP_UUID', width: 200, hAlign: 'Left', HeaderTooltip: 'SAP UUID' },
-    { Header: <div className='font-bold pl-2'>S.No</div>, accessor: 'SNO', width: 100, hAlign: 'Left', HeaderTooltip: 'Serial Number' },
-    { Header: <div className='font-bold pl-2'>Invoice Number</div>, accessor: 'InvoiceNumber', width: 180, hAlign: 'Left', HeaderTooltip: 'Invoice Number' },
-    { Header: <div className='font-bold pl-2'>Invoice Date</div>, accessor: 'InvoiceDate', width: 180, hAlign: 'Left', HeaderTooltip: 'Invoice Date' },
     { Header: <div className='font-bold pl-2'>Invoice Amount</div>, accessor: 'InvoiceAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'Invoice Amount' },
-    { Header: <div className='font-bold pl-2'>Invoice Amount Currency</div>, accessor: 'InvoiceAmount_C', width: 180, hAlign: 'Left', HeaderTooltip: 'Invoice Amount Currency' },
-    { Header: <div className='font-bold pl-2'>Invoice Amount Currency Text</div>, accessor: 'InvoiceAmount_C_Text', width: 220, hAlign: 'Left', HeaderTooltip: 'Invoice Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>SC Name</div>, accessor: 'SCName', width: 150, hAlign: 'Left', HeaderTooltip: 'SC Name' },
-    { Header: <div className='font-bold pl-2'>Dealer Location Name</div>, accessor: 'DealerLocationName', width: 200, hAlign: 'Left', HeaderTooltip: 'Dealer Location Name' },
     { Header: <div className='font-bold pl-2'>Engine Number</div>, accessor: 'EngineNumber', width: 180, hAlign: 'Left', HeaderTooltip: 'Engine Number' },
-    { Header: <div className='font-bold pl-2'>Model Group</div>, accessor: 'ModelGroup', width: 150, hAlign: 'Left', HeaderTooltip: 'Model Group' },
-    { Header: <div className='font-bold pl-2'>Model Description</div>, accessor: 'ModelDescription', width: 200, hAlign: 'Left', HeaderTooltip: 'Model Description' },
-    { Header: <div className='font-bold pl-2'>Customer Name</div>, accessor: 'CustomerName', width: 250, hAlign: 'Left', HeaderTooltip: 'Customer Name' },
-    { Header: <div className='font-bold pl-2'>Customer ID</div>, accessor: 'CustomerID', width: 180, hAlign: 'Left', HeaderTooltip: 'Customer ID' },
-    { Header: <div className='font-bold pl-2'>VIN</div>, accessor: 'VehicleIdentificationNumber', width: 250, hAlign: 'Left', HeaderTooltip: 'Vehicle Identification Number' },
-    { Header: <div className='font-bold pl-2'>Dealer Discount</div>, accessor: 'DealerDiscount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'Dealer Discount' },
-    { Header: <div className='font-bold pl-2'>Dealer Discount Currency</div>, accessor: 'DealerDiscount_C', width: 200, hAlign: 'Left', HeaderTooltip: 'Dealer Discount Currency' },
-    { Header: <div className='font-bold pl-2'>Dealer Discount Currency Text</div>, accessor: 'DealerDiscount_C_Text', width: 250, hAlign: 'Left', HeaderTooltip: 'Dealer Discount Currency Text' },
-    { Header: <div className='font-bold pl-2'>OEM Scheme Discount</div>, accessor: 'OEMSchemeDiscount_V', width: 200, hAlign: 'Left', HeaderTooltip: 'OEM Scheme Discount' },
-    { Header: <div className='font-bold pl-2'>OEM Scheme Discount Currency</div>, accessor: 'OEMSchemeDiscount_C', width: 250, hAlign: 'Left', HeaderTooltip: 'OEM Scheme Discount Currency' },
-    { Header: <div className='font-bold pl-2'>OEM Scheme Discount Currency Text</div>, accessor: 'OEMSchemeDiscount_C_Text', width: 300, hAlign: 'Left', HeaderTooltip: 'OEM Scheme Discount Currency Text' },
-    { Header: <div className='font-bold pl-2'>Corporate Discount Amount</div>, accessor: 'CorporateDiscountAmount_V', width: 250, hAlign: 'Left', HeaderTooltip: 'Corporate Discount Amount' },
-    { Header: <div className='font-bold pl-2'>Corporate Discount Amount Currency</div>, accessor: 'CorporateDiscountAmount_C', width: 300, hAlign: 'Left', HeaderTooltip: 'Corporate Discount Amount Currency' },
-    { Header: <div className='font-bold pl-2'>Corporate Discount Amount Currency Text</div>, accessor: 'CorporateDiscountAmount_C_Text', width: 350, hAlign: 'Left', HeaderTooltip: 'Corporate Discount Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>TCS Amount</div>, accessor: 'TCSAmount_V', width: 150, hAlign: 'Left', HeaderTooltip: 'TCS Amount' },
-    { Header: <div className='font-bold pl-2'>TCS Amount Currency</div>, accessor: 'TCSAmount_C', width: 200, hAlign: 'Left', HeaderTooltip: 'TCS Amount Currency' },
-    { Header: <div className='font-bold pl-2'>TCS Amount Currency Text</div>, accessor: 'TCSAmount_C_Text', width: 250, hAlign: 'Left', HeaderTooltip: 'TCS Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>CESS Tax Rate</div>, accessor: 'CESSTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'CESS Tax Rate' },
-    { Header: <div className='font-bold pl-2'>CESS Tax Amount</div>, accessor: 'CESSTaxAmount_V', width: 200, hAlign: 'Left', HeaderTooltip: 'CESS Tax Amount' },
-    { Header: <div className='font-bold pl-2'>CESS Tax Amount Currency</div>, accessor: 'CESSTaxAmount_C', width: 300, hAlign: 'Left', HeaderTooltip: 'CESS Tax Amount Currency' },
-    { Header: <div className='font-bold pl-2'>CESS Tax Amount Currency Text</div>, accessor: 'CESSTaxAmount_C_Text', width: 350, hAlign: 'Left', HeaderTooltip: 'CESS Tax Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>CGST Tax Rate</div>, accessor: 'CGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'CGST Tax Rate' },
-    { Header: <div className='font-bold pl-2'>CGST Tax Amount</div>, accessor: 'CGSTTaxAmount_V', width: 200, hAlign: 'Left', HeaderTooltip: 'CGST Tax Amount' },
-    { Header: <div className='font-bold pl-2'>CGST Tax Amount Currency</div>, accessor: 'CGSTTaxAmount_C', width: 300, hAlign: 'Left', HeaderTooltip: 'CGST Tax Amount Currency' },
-    { Header: <div className='font-bold pl-2'>CGST Tax Amount Currency Text</div>, accessor: 'CGSTTaxAmount_C_Text', width: 350, hAlign: 'Left', HeaderTooltip: 'CGST Tax Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>SGST Tax Rate</div>, accessor: 'SGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'SGST Tax Rate' },
-    { Header: <div className='font-bold pl-2'>SGST Tax Amount</div>, accessor: 'SGSTTaxAmount_V', width: 200, hAlign: 'Left', HeaderTooltip: 'SGST Tax Amount' },
-    { Header: <div className='font-bold pl-2'>SGST Tax Amount Currency</div>, accessor: 'SGSTTaxAmount_C', width: 300, hAlign: 'Left', HeaderTooltip: 'SGST Tax Amount Currency' },
-    { Header: <div className='font-bold pl-2'>SGST Tax Amount Currency Text</div>, accessor: 'SGSTTaxAmount_C_Text', width: 350, hAlign: 'Left', HeaderTooltip: 'SGST Tax Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>IGST Tax Rate</div>, accessor: 'IGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'IGST Tax Rate' },
-    { Header: <div className='font-bold pl-2'>IGST Tax Amount</div>, accessor: 'IGSTTaxAmount_V', width: 200, hAlign: 'Left', HeaderTooltip: 'IGST Tax Amount' },
-    { Header: <div className='font-bold pl-2'>IGST Tax Amount Currency</div>, accessor: 'IGSTTaxAmount_C', width: 300, hAlign: 'Left', HeaderTooltip: 'IGST Tax Amount Currency' },
-    { Header: <div className='font-bold pl-2'>IGST Tax Amount Currency Text</div>, accessor: 'IGSTTaxAmount_C_Text', width: 350, hAlign: 'Left', HeaderTooltip: 'IGST Tax Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>UGST Tax Rate</div>, accessor: 'UGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'UGST Tax Rate' },
-    { Header: <div className='font-bold pl-2'>UGST Tax Amount</div>, accessor: 'UGSTTaxAmount_V', width: 200, hAlign: 'Left', HeaderTooltip: 'UGST Tax Amount' },
-    { Header: <div className='font-bold pl-2'>UGST Tax Amount Currency</div>, accessor: 'UGSTTaxAmount_C', width: 300, hAlign: 'Left', HeaderTooltip: 'UGST Tax Amount Currency' },
-    { Header: <div className='font-bold pl-2'>UGST Tax Amount Currency Text</div>, accessor: 'UGSTTaxAmount_C_Text', width: 350, hAlign: 'Left', HeaderTooltip: 'UGST Tax Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>EPC Amount</div>, accessor: 'EPCAmount_V', width: 200, hAlign: 'Left', HeaderTooltip: 'EPC Amount' },
-    { Header: <div className='font-bold pl-2'>EPC Amount Currency</div>, accessor: 'EPCAmount_C', width: 250, hAlign: 'Left', HeaderTooltip: 'EPC Amount Currency' },
-    { Header: <div className='font-bold pl-2'>EPC Amount Currency Text</div>, accessor: 'EPCAmount_C_Text', width: 300, hAlign: 'Left', HeaderTooltip: 'EPC Amount Currency Text' },
-    { Header: <div className='font-bold pl-2'>HSN</div>, accessor: 'HSN', width: 150, hAlign: 'Left', HeaderTooltip: 'HSN' },
-    { Header: <div className='font-bold pl-2'>Dealer Code</div>, accessor: 'DealerCode', width: 180, hAlign: 'Left', HeaderTooltip: 'Dealer Code' },
-    { Header: <div className='font-bold pl-2'>GL Account 1</div>, accessor: 'GLAccount1', width: 180, hAlign: 'Left', HeaderTooltip: 'GL Account 1' },
-    { Header: <div className='font-bold pl-2'>TCS GL Account</div>, accessor: 'TCSGLAccount', width: 180, hAlign: 'Left', HeaderTooltip: 'TCS GL Account' },
-    { Header: <div className='font-bold pl-2'>Profit Center</div>, accessor: 'ProfitCenter', width: 200, hAlign: 'Left', HeaderTooltip: 'Profit Center' },
-    { Header: <div className='font-bold pl-2'>Creation Date</div>, accessor: 'CreationDate', width: 200, hAlign: 'Left', HeaderTooltip: 'Creation Date' },
+    { Header: <div className='font-bold pl-2'>Model Description</div>, accessor: 'ModelDescription', width: 150, hAlign: 'Left', HeaderTooltip: 'Model Description' },
     { Header: <div className='font-bold pl-2'>Selling Price</div>, accessor: 'SellingPrice_V', width: 200, hAlign: 'Left', HeaderTooltip: 'Selling Price' },
-    { Header: <div className='font-bold pl-2'>Selling Price Currency</div>, accessor: 'SellingPrice_C', width: 250, hAlign: 'Left', HeaderTooltip: 'Selling Price Currency' },
-    { Header: <div className='font-bold pl-2'>Selling Price Currency Text</div>, accessor: 'SellingPrice_C_Text', width: 300, hAlign: 'Left', HeaderTooltip: 'Selling Price Currency Text' },
-    { Header: <div className='font-bold pl-2'>Status</div>, accessor: 'Status', width: 150, hAlign: 'Left', HeaderTooltip: 'Status' },
-    { Header: <div className='font-bold pl-2'>Status Text</div>, accessor: 'Status_Text', width: 200, hAlign: 'Left', HeaderTooltip: 'Status Text' },
-    { Header: <div className='font-bold pl-2'>Remarks</div>, accessor: 'Remarks', width: 400, hAlign: 'Left', HeaderTooltip: 'Remarks' },
-    { Header: <div className='font-bold pl-2'>Business Place</div>, accessor: 'BusinessPlace', width: 200, hAlign: 'Left', HeaderTooltip: 'Business Place' },
+    { Header: <div className='font-bold pl-2'>Dealer Discount</div>, accessor: 'DealerDiscount_V', width: 150, hAlign: 'Left', HeaderTooltip: 'Dealer Discount' },
+    { Header: <div className='font-bold pl-2'>OEM Scheme Discount</div>, accessor: 'OEMSchemeDiscount_V', width: 250, hAlign: 'Left', HeaderTooltip: 'OEM Scheme Discount' },
+    { Header: <div className='font-bold pl-2'>Corporate Discount Amount</div>, accessor: 'CorporateDiscountAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'Corporate Discount Amount' },
+    { Header: <div className='font-bold pl-2'>TCS Amount</div>, accessor: 'TCSAmount_V', width: 250, hAlign: 'Left', HeaderTooltip: 'TCS Amount' },
+    { Header: <div className='font-bold pl-2'>CESS Tax Rate</div>, accessor: 'CESSTaxRate', width: 150, hAlign: 'Left', HeaderTooltip: 'CESS Tax Rate' },
+    { Header: <div className='font-bold pl-2'>CESS Tax Amount</div>, accessor: 'CESSTaxAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'CESS Tax Amount' },
+    { Header: <div className='font-bold pl-2'>CGST Tax Rate</div>, accessor: 'CGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'CGST Tax Rate' },
+    { Header: <div className='font-bold pl-2'>CGST Tax Amount</div>, accessor: 'CGSTTaxAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'CGST Tax Amount' },
+    { Header: <div className='font-bold pl-2'>SGST Tax Rate</div>, accessor: 'SGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'SGST Tax Rate' },
+    { Header: <div className='font-bold pl-2'>SGST Tax Amount</div>, accessor: 'SGSTTaxAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'SGST Tax Amount' },
+    { Header: <div className='font-bold pl-2'>IGST Tax Rate</div>, accessor: 'IGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'IGST Tax Rate' },
+    { Header: <div className='font-bold pl-2'>IGST Tax Amount</div>, accessor: 'IGSTTaxAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'IGST Tax Amount' },
+    { Header: <div className='font-bold pl-2'>UGST Tax Rate</div>, accessor: 'UGSTTaxRate', width: 180, hAlign: 'Left', HeaderTooltip: 'UGST Tax Rate' },
+    { Header: <div className='font-bold pl-2'>UGST Tax Amount</div>, accessor: 'UGSTTaxAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'UGST Tax Amount' },
+    { Header: <div className='font-bold pl-2'>EPC Amount</div>, accessor: 'EPCAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'EPC Amount' },
     {
       Header: <div className='font-bold pl-2'>Action</div>,
       accessor: 'actions',
@@ -142,98 +99,6 @@ function Master() {
     return `${year}-${month}-${day}T00:00:00`;
   };
 
-  const fetchData = async () => {
-    if (!branch || !date || !park) return;
-
-    const formattedDate = formatDate(date);
-    const url = `https://my403545-api.s4hana.cloud.sap/sap/opu/odata/sap/YY1_SO_EXCEL_UPLOAD_CDS/YY1_SO_EXCEL_UPLOAD?$filter=CreationDate eq datetime'${formattedDate}' and Branch eq '${branch}'&$format=json`;
-
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Authorization: 'Basic ' + btoa('INTEGRATION:UT8BsHhZkz-cPbMRcvCiaMRzqngFlSAQZTxZBvGM')
-        }
-      });
-
-      const json = await response.json();
-      const results = json?.d?.results || [];
-
-      const parsed = results.map((item) => ({
-        sno: item.SNo,
-        soldToParty: item.SoldToParty,
-        orderType: item.OrderType,
-        status: item.SAP_LifecycleStatus_Text,
-        branch: item.Branch_Text
-      }));
-
-      setTableData(parsed);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchData2 = async () => {
-    const username = "INTEGRATION";
-    const password = "UT8BsHhZkz-cPbMRcvCiaMRzqngFlSAQZTxZBvGM";
-    const basicAuth = btoa(`${username}:${password}`);
-
-    try {
-      const url = "https://073013bftrial-dev-anant-srv.cfapps.us10-001.hana.ondemand.com/odata/v4/anant/YY1_SO_EXCEL_UPLOAD";
-      const response = await axios.get(
-        url, {
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": `Basic ${basicAuth}`,
-        }
-      }
-      );
-
-      if (response.status === 200) {
-        const results = response.data.value || [];
-        const parsed = results.map((item) => ({
-          sno: item.SNo,
-          soldToParty: item.SoldToParty,
-          orderType: item.OrderType,
-          status: item.SAP_LifecycleStatus_Text,
-          branch: item.Branch_Text
-        }));
-
-        setTableData(parsed);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchData3 = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/sales');
-      if (response.status === 200) {
-        console.log('----- results ------');
-        console.log(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const destinationApi = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/api/destination`);
-      if (response.status === 200) {
-        console.log('----- results ------');
-        console.log("Branch:", branch);
-        console.log("From Date:", fromDate);
-        console.log("To Date:", toDate);
-        console.log("Park/Post:", park);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   const onRowSelect = (e) => {
     const rowsById = e?.detail?.rowsById || {};
     const allRowsSelected = e?.detail?.allRowsSelected;
@@ -249,14 +114,14 @@ function Master() {
       tableData.forEach((row, index) => {
         newSelectedIds[index] = true;
       });
-      setSelectedRowsData(selectedRowObjects);
-      setSelectedRowIds(newSelectedIds);
+      updateState({ selectedRowsData: selectedRowObjects });
+      updateState({ selectedRowIds: newSelectedIds });
     }
     else if (selectedCount === 0) {
       selectedRowObjects = [];
 
-      setSelectedRowsData(selectedRowObjects);
-      setSelectedRowIds({});
+      updateState({ selectedRowsData: selectedRowObjects });
+      updateState({});
     }
     else {
 
@@ -269,8 +134,8 @@ function Master() {
           }
         }
       });
-      setSelectedRowsData(selectedRowObjects);
-      setSelectedRowIds(newSelectedIds);
+      updateState({ selectedRowsData: selectedRowObjects });
+      updateState({ selectedRowIds: newSelectedIds });
     }
   };
 
@@ -283,10 +148,10 @@ function Master() {
   };
 
   const handleEdit = (rowData) => {
-    console.log('Edit row:', rowData._originalData);
-    navigate('/edit-master', {
+    console.log('Edit row:', rowData);
+    navigate('/application/edit', {
       state: {
-        rowData: rowData._originalData
+        rowData: rowData
       }
     });
   };
@@ -298,7 +163,6 @@ function Master() {
   const fetchDateFilterData = async () => {
     const formattedFromDate = formatDate(fromDate);
     const formattedToDate = formatDate(toDate);
-    const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
     const res = await axios.get(`${API_BASE}/api/salesDateFilter`, {
       params: { fromDate: formattedFromDate, toDate: formattedToDate }
@@ -310,7 +174,6 @@ function Master() {
   const fetchCountRecordData = async () => {
     const formattedFromDate = formatDate(fromDate);
     const formattedToDate = formatDate(toDate);
-    const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
     const res = await axios.get(`${API_BASE}/api/salesRecordCount`, {
       params: { fromDate: formattedFromDate, toDate: formattedToDate }
@@ -322,19 +185,19 @@ function Master() {
   const fetchParkStatusData = async () => {
     const formattedFromDate = formatDate(fromDate);
     const formattedToDate = formatDate(toDate);
-    const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 
     try {
-      const res = await axios.get(`${API_BASE}/api/salesParkStatus`, {
-        params: {
-          fromDate: formattedFromDate,
-          toDate: formattedToDate,
-          status: park
-        }
-      });
+      const params = {
+        fromDate: formattedFromDate,
+        toDate: formattedToDate
+      };
 
-      console.log("API Response data:", res.data);
+      if (park !== undefined) {
+        params.status = park === ' ' ? '' : park;
+      }
+      const res = await axios.get(`${API_BASE}/api/salesParkStatus`, { params });
+
 
       return {
         count: res.data?.__count || "0",
@@ -351,41 +214,54 @@ function Master() {
 
 
   const handleFetchAll = async () => {
-    console.log("Starting handleFetchAll");
     try {
-      console.log("Calling APIs...");
-      setLoading(true);
-      setError(null);
+      updateState({ loading: true, error: null });
+
       const [dateFilterRes, countRecordRes, parkStatusRes] = await Promise.all([
         fetchDateFilterData(),
         fetchCountRecordData(),
-        fetchParkStatusData()
+        fetchParkStatusData(),
       ]);
 
-      console.log("ParkStatus response:", parkStatusRes);
-      console.log("Count:", parkStatusRes.count);
-      console.log("Results:", parkStatusRes.results);
-
-      setTotalCount(parseInt(parkStatusRes.count) || 0);
-      setTableData(parkStatusRes.results || []);
-
-      console.log("State updated - count:", totalCount, "data:", tableData);
+      updateState({
+        loading: false,
+        tableData: parkStatusRes.results || [],
+        totalCount: parseInt(parkStatusRes.count) || 0
+      });
     } catch (err) {
-      setError(err.message);
+      updateState({ error: err.message, loading: false });
       console.error("Error in handleFetchAll:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    console.log("Current tableData:", tableData);
-  }, [tableData]);
 
 
 
   return (
-    <div className="p-0 pt-10 bg-gray-100 min-h-screen">
+    <div className="p-0 pt-10 bg-gray-100 min-h-screen" style={{ position: 'relative' }}>
+
+      {loading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(255,255,255,0.7)',
+          zIndex: 0,
+          pointerEvents: 'auto'
+        }}>
+          <BusyIndicator
+            active={loading}
+            size="Large"
+          />
+        </div>
+      )}
+
+
       <Page
         backgroundDesign='Solid'
         footer={
@@ -418,6 +294,7 @@ function Master() {
           height: 'calc(100vh - 5rem)',
           position: 'relative',
           padding: '1.5rem',
+          zIndex: 1
         }}
       >
 
@@ -428,7 +305,7 @@ function Master() {
             marginBottom: '1.5rem',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             width: '100%',
-            height: '150px'
+            height: '220px'
           }}
         >
           <div style={{ display: 'flex', flexGrow: 1, gap: '1rem' }}>
@@ -438,7 +315,8 @@ function Master() {
                 <ComboBox
                   placeholder="Select Branch"
                   style={{ width: '256px' }}
-                  onChange={(e) => setBranch(e.target.value)}
+                  value={branch || ''}
+                  onChange={(e) => updateState({ branch: e.target.value })}
                 >
                   <ComboBoxItem text="01" />
                   <ComboBoxItem text="02" />
@@ -448,33 +326,52 @@ function Master() {
                 <Label showColon style={{ width: '80px' }}>From Date</Label>
                 <DatePicker
                   style={{ width: '256px' }}
-                  onChange={(e) => setFromDate(e.target.value)}
+                  value={fromDate || ''}
+                  onChange={(e) => updateState({ fromDate: e.target.value })}
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Label showColon style={{ width: '80px' }}>To Date</Label>
                 <DatePicker
                   style={{ width: '256px' }}
-                  onChange={(e) => setToDate(e.target.value)}
+                  value={toDate || ''}
+                  onChange={(e) => updateState({ toDate: e.target.value })}
                 />
               </div>
-
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Label showColon style={{ width: '80px' }}>Park/Post</Label>
                 <ComboBox
                   placeholder="Select"
                   style={{ width: '256px' }}
-                  onChange={(e) => setPark(e.target.value)}
+                  value={park || ''}
+                  onChange={(e) => {
+                    const selectedItem = e.target.value;
+                    let parkValue;
+                    if (selectedItem === '-') {
+                      parkValue = " "
+                    } else if (selectedItem === '01 - Yet to Post') {
+                      parkValue = "01"
+                    } else if (selectedItem === '02 - Success') {
+                      parkValue = "02"
+                    } else if (selectedItem === '03 - Failure') {
+                      parkValue = "03"
+                    }
+
+                    updateState({ park: parkValue });
+                  }}
                 >
-                  <ComboBoxItem text=" " />
-                  <ComboBoxItem text="01" />
-                  <ComboBoxItem text="02" />
-                  <ComboBoxItem text="03" />
+                  <ComboBoxItem text="-" />
+                  <ComboBoxItem text="01 - Yet to Post" />
+                  <ComboBoxItem text="02 - Success" />
+                  <ComboBoxItem text="03 - Failure" />
                 </ComboBox>
               </div>
+            </div>
 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <InvoiceNumberSelector />
+              <CustomerNameSelector />
+              <HsnSelector/>
             </div>
           </div>
 
@@ -483,15 +380,18 @@ function Master() {
           <Button
             design="Emphasized"
             onClick={handleFetchAll}
-            disabled={!fromDate || !toDate || !park}
+            disabled={!fromDate || !toDate || park === undefined}
           >
             Fetch
           </Button>
         </Toolbar>
 
+
+
         <div className="bg-white p-4 shadow w-full pb-5"
         >
           <AnalyticalTable
+            loading={loading}
             key={tableData.length}
             columns={columns}
             data={tableData}
