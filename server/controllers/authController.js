@@ -25,4 +25,34 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { login };
+const resetPassword = async (req, res) => {
+    try {
+        const { uuid, newPassword } = req.body;
+
+        if (!uuid || !newPassword) {
+            return res.status(400).json({ error: 'UUID and new Password are required' });
+        }
+
+        const username = process.env.SAP_USERNAME;
+        const sapPassword = process.env.SAP_PASSWORD;
+        const basicAuth = Buffer.from(`${username}:${sapPassword}`).toString('base64');
+
+        const resetUrl = `${process.env.SAP_RESET_PASSWORD}?UUID=${uuid}`;
+
+        const response = await axios.patch(resetUrl,
+            { Password: newPassword },
+            { headers: { Authorization: `Basic ${basicAuth}` } }
+        );
+
+        res.json({ success: true, message: 'Password updated successfully' });
+
+    } catch (error) {
+        console.error('Error resetting password:', error.message);
+        res.status(500).json({
+            error: 'Password reset failed',
+            details: error.response?.data || error.message
+        });
+    }
+};
+
+module.exports = { login, resetPassword };

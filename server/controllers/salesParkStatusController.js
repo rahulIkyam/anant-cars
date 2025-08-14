@@ -18,7 +18,6 @@ const getSalesParkStatus = async (req, res) => {
             headers: { Authorization: `Basic ${basicAuth}`}
         });
 
-        console.log("SAP Response:", response.data);
 
         res.json(response.data.d || { __count: "0", results: [] });
 
