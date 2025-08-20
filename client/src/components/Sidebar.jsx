@@ -6,21 +6,24 @@ import '@ui5/webcomponents-icons/dist/shipping-status.js';
 import "@ui5/webcomponents-icons/dist/group.js";
 import "@ui5/webcomponents-icons/dist/documents.js";
 import "@ui5/webcomponents-icons/dist/sales-document.js";
+import "@ui5/webcomponents-icons/dist/money-bills.js";
 import "@ui5/webcomponents-icons/dist/supplier.js";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useMaster } from '../master/MasterContext';
+import { useMaster } from '../pages/master/MasterContext';
+import { useAccReceipt } from '../pages/account-receipt/AccountReceiptContext';
 
 function Sidebar({ collapsed }) {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef(null);
   const { resetMasterState } = useMaster();
+  const { resetAccountReceiptState } = useAccReceipt();
 
   const pathToIdMap = {
     "/dashboard": "dashboard",
     "/master": "main-master",
     "/edit-master": "main-master",
-    "/customer-master": "customer",
+    "/account-receipts": "account-receipts",
     "/vendor-master": "vendor",
   };
 
@@ -39,11 +42,19 @@ function Sidebar({ collapsed }) {
 
     switch (selectedId) {
       case "dashboard":
-        navigate("/dashboard", resetMasterState());
+        resetMasterState();
+        resetAccountReceiptState();
+        navigate("/dashboard",);
         break;
       case "sales-register":
+        resetMasterState();
+        resetAccountReceiptState();
         navigate("/sales-register");
         break;
+      case "account-receipts":
+        resetMasterState();
+        resetAccountReceiptState();
+        navigate("/account-receipts");
       default:
         break;
     }
@@ -60,7 +71,8 @@ function Sidebar({ collapsed }) {
         <SideNavigationItem icon="" text="" id="" />
         <SideNavigationItem icon="home" text="Dashboard" id="dashboard" />
         <SideNavigationItem icon="documents" text="Application" id="main-application" >
-          <SideNavigationSubItem icon='sales-document' text='Sales Register' id='sales-register'/>
+          <SideNavigationSubItem icon='sales-document' text='Sales Register' id='sales-register' />
+          <SideNavigationSubItem icon='money-bills' text='Account Receipts' id='account-receipts' />
         </SideNavigationItem>
       </SideNavigation>
     </div>

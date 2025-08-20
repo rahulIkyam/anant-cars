@@ -17,7 +17,8 @@ export const MasterProvider = ({ children }) => {
     tableData: [],
     totalCount: 0,
     selectedRowIds: {},
-    selectedRowsData: []
+    selectedRowsData: [],
+    showDialog: false
   });
 
   const resetMasterState = useCallback(() => {
@@ -35,7 +36,8 @@ export const MasterProvider = ({ children }) => {
       tableData: [],
       totalCount: 0,
       selectedRowIds: {},
-      selectedRowsData: []
+      selectedRowsData: [],
+      showDialog: false
     });
   }, []);
 

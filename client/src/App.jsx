@@ -7,11 +7,13 @@ import Login from './Login'
 import Dashboard from './Dashboard'
 import AppBar from './components/AppBar'
 import Sidebar from './components/Sidebar'
-import Master from './master/Master'
 import CustomerMaster from './CustomerMaster'
 import VendorMaster from './VendorMaster'
-import EditMaster from './master/EditMaster'
 import { AppProviders } from './providers/AppProviders'
+import AuthWrapper from './components/AuthWrapper'
+import Master from './pages/master/Master'
+import EditMaster from './pages/master/EditMaster'
+import AccountReceipt from './pages/account-receipt/accountReceipt'
 
 const MainLayout = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -39,16 +41,19 @@ function App() {
     <AppProviders>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Navigate to="/login" />} />
+          <Route path='/' element={<Navigate to="/login" replace />} />
           <Route path='/login' element={<Login />} />
-          <Route path='/dashboard' element={<MainLayout><Dashboard /></MainLayout>} />
-          <Route path='/sales-register' element={<MainLayout><Outlet /></MainLayout>}>
-            <Route index element={<Master />} />
-            <Route path='edit' element={<EditMaster />} />
+
+          <Route element={<AuthWrapper><MainLayout><Outlet /></MainLayout></AuthWrapper>}>
+            <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/sales-register'>
+              <Route index element={<Master />} />
+              <Route path='edit' element={<EditMaster />} />
+            </Route>
+            <Route path='/account-receipts' element={<AccountReceipt/>}/>
+            <Route path='/customer-master' element={<CustomerMaster />} />
+            <Route path='/vendor-master' element={<VendorMaster />} />
           </Route>
-          <Route path='/customer-master' element={<MainLayout><CustomerMaster /></MainLayout>} />
-          <Route path='/vendor-master' element={<MainLayout><VendorMaster /></MainLayout>} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AppProviders>

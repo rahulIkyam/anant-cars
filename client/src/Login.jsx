@@ -41,6 +41,7 @@ function Login() {
             if (res.data.length > 0) {
                 const userData = res.data[0];
                 sessionStorage.setItem("userData", JSON.stringify(userData));
+                sessionStorage.setItem("authToken", userData.SAP_UUID);
                 navigate("/dashboard");
             } else {
                 setDialogContent("Invalid Credentials");

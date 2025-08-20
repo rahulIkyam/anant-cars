@@ -1,6 +1,6 @@
 import { Button, Input, Label, ListItemStandard, SelectDialog } from '@ui5/webcomponents-react';
 import React, { useState } from 'react'
-import { useMaster } from '../../master/MasterContext';
+import { useMaster } from '../../pages/master/MasterContext';
 
 function CustomerNameSelector() {
 

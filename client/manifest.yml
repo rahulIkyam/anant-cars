@@ -6,3 +6,7 @@ applications:
     memory: 64M
 
     # cf push anant-cars-frontend -b staticfile_buildpack
+    # cf push anant-cars-backend
+    
+    # Staticfile
+    # pushstate: true

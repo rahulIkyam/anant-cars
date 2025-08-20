@@ -20,7 +20,7 @@ import ikyamLogo from "../assets/ikyam-logo.png";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import axios from 'axios';
-import { useMaster } from "../master/MasterContext";
+import { useMaster } from "../pages/master/MasterContext";
 
 function AppBar({ toggleSidebar }) {
 
@@ -61,9 +61,11 @@ function AppBar({ toggleSidebar }) {
 
   const handleLogout = () => {
     resetMasterState();
-    sessionStorage.clear();
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('authToken');
+    window.history.replaceState(null, '', '/login');
     setPopoverOpen(false);
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   const handleProfileClick = () => {

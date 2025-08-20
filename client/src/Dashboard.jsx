@@ -2,6 +2,7 @@ import React from 'react';
 import { Icon, Button, Card, CardHeader } from '@ui5/webcomponents-react';
 import { useNavigate } from 'react-router-dom';
 import "@ui5/webcomponents-icons/dist/sales-order.js";
+import "@ui5/webcomponents-icons/dist/money-bills.js";
 import "@ui5/webcomponents-icons/dist/group.js";
 import "@ui5/webcomponents-icons/dist/supplier.js";
 
@@ -13,6 +14,7 @@ function Dashboard() {
       header: "Application",
       cards: [
         { title: "Sales Register", icon: "sales-order", route: "/sales-register" },
+        { title: "Account Receipts", icon: "money-bills", route: "/account-receipts" },
       ]
     },
   ];
