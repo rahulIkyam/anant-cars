@@ -4,7 +4,7 @@ const getSalesParkStatus = async (req, res) => {
     try {
         const { fromDate, toDate, status } = req.query;
 
-        if(!fromDate || !toDate || !status) {
+        if(!fromDate || !toDate || status === undefined) {
             return res.status(400).json({ error: 'From and To Dates, and Status were required'});
         }
 
@@ -12,8 +12,15 @@ const getSalesParkStatus = async (req, res) => {
         const sapPassword = process.env.SAP_PASSWORD;
         const basicAuth = Buffer.from(`${username}:${sapPassword}`).toString('base64');
 
-        const salesParkStatusUrl = `${process.env.SALES_PARKPOST_STATUS}?filter=CreationDate ge datetime'${fromDate}' and CreationDate le datetime'${toDate}' and Status eq '${status}'&count=allpages`;
+        let filter = `CreationDate ge datetime'${fromDate}' and CreationDate le datetime'${toDate}'`;
+        
+        if (status !== undefined) {
+            filter += ` and Status eq '${status}'`;
+        }
 
+        const salesParkStatusUrl = `${process.env.SAP_BASEURL}${process.env.SALES_PARKPOST_STATUS}?filter=${encodeURIComponent(filter)}&count=allpages`;
+        
+        
         const response = await axios.get(salesParkStatusUrl, {
             headers: { Authorization: `Basic ${basicAuth}`}
         });
@@ -22,8 +29,12 @@ const getSalesParkStatus = async (req, res) => {
         res.json(response.data.d || { __count: "0", results: [] });
 
     } catch (error) {
-        console.error('Error fetching Park and Post data:', error.message);
-        res.status(500).json({ error: 'Failed' });
+        console.error('Error fetching Park and Post Sales Register data:', error.message);
+        console.error('Error details:', error.response?.data);
+        res.status(500).json({ 
+            error: 'Failed',
+            details: error.response?.data || error.message 
+        });
     }
 };
 
