@@ -40,8 +40,12 @@ function Login() {
 
             if (res.data.length > 0) {
                 const userData = res.data[0];
+                const permissions = userData.to_line?.results || [];
+
                 sessionStorage.setItem("userData", JSON.stringify(userData));
                 sessionStorage.setItem("authToken", userData.SAP_UUID);
+                sessionStorage.setItem("permissions", JSON.stringify(permissions));
+                
                 navigate("/dashboard");
             } else {
                 setDialogContent("Invalid Credentials");

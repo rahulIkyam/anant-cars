@@ -14,6 +14,7 @@ import AuthWrapper from './components/AuthWrapper'
 import Master from './pages/master/Master'
 import EditMaster from './pages/master/EditMaster'
 import AccountReceipt from './pages/account-receipt/accountReceipt'
+import CounterReceipt from './pages/counter-receipt/CounterReceipt'
 
 const MainLayout = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -51,6 +52,7 @@ function App() {
               <Route path='edit' element={<EditMaster />} />
             </Route>
             <Route path='/account-receipts' element={<AccountReceipt/>}/>
+            <Route path='/counter-receipts' element={<CounterReceipt/>}/>
             <Route path='/customer-master' element={<CustomerMaster />} />
             <Route path='/vendor-master' element={<VendorMaster />} />
           </Route>

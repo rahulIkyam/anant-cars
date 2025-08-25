@@ -19,6 +19,7 @@ import {
   Tag,
   Title,
   ToolbarButton,
+  Icon,
 } from '@ui5/webcomponents-react';
 import "@ui5/webcomponents-icons/dist/edit.js";
 import "@ui5/webcomponents-icons/dist/AllIcons.js";
@@ -49,11 +50,15 @@ function Master() {
     setMasterState(prev => ({ ...prev, ...updates }));
   };
 
-  const enableMultiSelect = park === '';
+
+
+  const enableMultiSelect = park === '' || park === '03';
   const enablePostButton = enableMultiSelect && selectedRowsData.length > 0;
 
 
   const baseColumn = [
+    { Header: <div className='font-bold pl-2'>Sl No</div>, accessor: 'SNO', width: 220, hAlign: 'Left', HeaderTooltip: 'Sl No' },
+    { Header: <div className='font-bold pl-2'>Invoice Number</div>, accessor: 'InvoiceNumber', width: 220, hAlign: 'Left', HeaderTooltip: 'Invoice Number' },
     { Header: <div className='font-bold pl-2'>UUID</div>, accessor: 'SAP_UUID', width: 220, hAlign: 'Left', HeaderTooltip: 'UUID' },
     { Header: <div className='font-bold pl-2'>Invoice Amount</div>, accessor: 'InvoiceAmount_V', width: 180, hAlign: 'Left', HeaderTooltip: 'Invoice Amount' },
     { Header: <div className='font-bold pl-2'>Engine Number</div>, accessor: 'EngineNumber', width: 180, hAlign: 'Left', HeaderTooltip: 'Engine Number' },
@@ -106,22 +111,24 @@ function Master() {
   const extraColumnsByPark = {
     // "01": [],
     "02": [
-      { Header: <div className='font-bold pl-2'>Migo Entry</div>, accessor: 'MigoEntry', width: 220, hAlign: 'Left', HeaderTooltip: 'Migo Entry' },
+      { Header: <div className='font-bold pl-2'>MIGO Entry</div>, accessor: 'MigoEntry', width: 220, hAlign: 'Left', HeaderTooltip: 'Migo Entry' },
       { Header: <div className='font-bold pl-2'>Outgoing Invocie Entry</div>, accessor: 'OutgoingInvocieEntry', width: 220, hAlign: 'Left', HeaderTooltip: 'Outgoing Invocie Entry' },
     ],
     "03": [
-      { Header: <div className='font-bold pl-2'>Migo Remarks</div>, accessor: 'MigoRemarks', width: 220, hAlign: 'Left', HeaderTooltip: 'Migo Remarks' },
       { Header: <div className='font-bold pl-2'>Remarks</div>, accessor: 'Remarks', width: 220, hAlign: 'Left', HeaderTooltip: 'Remarks' },
+      { Header: <div className='font-bold pl-2'>MIGO Remarks</div>, accessor: 'MigoRemarks', width: 220, hAlign: 'Left', HeaderTooltip: 'Migo Remarks' },
     ]
   };
 
   const actionColumn = baseColumn.find(col => col.accessor === "actions");
   const baseColumnsWithoutAction = baseColumn.filter(col => col.accessor !== "actions");
+  const firstTwoColumns = baseColumnsWithoutAction.slice(0, 2);
+  const remainingColumns = baseColumnsWithoutAction.slice(2);
 
   const columns = [
+    ...firstTwoColumns,
     ...(extraColumnsByPark[park] || []),
-    ...baseColumnsWithoutAction,
-    // ...(extraColumnsByPark[park] || []),
+    ...remainingColumns,
     actionColumn
   ];
 
@@ -244,6 +251,9 @@ function Master() {
       const newData = parkStatusRes.results || [];
       const newCount = parseInt(parkStatusRes.count) || 0;
 
+      // const newData = initialTableData.d.results || [];
+      // const newCount = newData.length;
+
       updateState({
         loading: false,
         tableData: newData,
@@ -276,9 +286,10 @@ function Master() {
       const status = "01";
       const promises = selectedRowsData.map(row => {
         const uuid = row.SAP_UUID;
+        const remarks = row.Remarks;
         return axios.patch(
           `${API_BASE}/api/updateStatus/update-status`,
-          { status },
+          { status, remarks },
           {
             params: { uuid },
             headers: {
@@ -694,10 +705,13 @@ function Master() {
         }
         titleArea={
           <DynamicPageTitle
+            style={{
+              padding: '1rem'
+            }}
             actionsBar={
               <Toolbar design="Transparent">
                 <ToolbarButton
-                style={{ paddingTop: '1rem', paddingRight: '1rem'}}
+                  style={{ paddingTop: '1rem', paddingRight: '1rem' }}
                   design="Emphasized"
                   text="Fetch"
                   disabled={!fromDate || !toDate || park === undefined}
@@ -705,7 +719,7 @@ function Master() {
               </Toolbar>
             }
           >
-            <Tag>Expand</Tag>
+            <Tag icon={<Icon name='sales-document' />}>Sales Register</Tag>
           </DynamicPageTitle>
         }
         showFooter='true'
@@ -744,6 +758,7 @@ function Master() {
           paddingTop: '2rem',
           paddingRight: '2rem'
         }}
+        hidePinButton='true'
       >
         <div className="bg-white shadow w-full"
         >
@@ -759,7 +774,8 @@ function Master() {
             selectionMode={enableMultiSelect ? "Multiple" : "None"}
             withRowHighlight
             noDataText={error ? "Error loading data" : "No data available"}
-            visibleRows={Math.min(14, tableData.length)}
+            // visibleRows={Math.min(14, tableData.length)}
+            visibleRows={tableData.length}
           />
         </div>
       </DynamicPage>

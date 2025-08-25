@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon, Button, Card, CardHeader } from '@ui5/webcomponents-react';
 import { useNavigate } from 'react-router-dom';
 import "@ui5/webcomponents-icons/dist/sales-order.js";
@@ -8,13 +8,20 @@ import "@ui5/webcomponents-icons/dist/supplier.js";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const permissions = JSON.parse(sessionStorage.getItem("permissions")) || [];
+
+  // Map SAP permissions to your dashboard routes
+  const allowedScreens = permissions
+    .filter(p => p.Permissions_Text !== "No")
+    .map(p => p.Screen);
 
   const sections = [
     {
       header: "Application",
       cards: [
-        { title: "Sales Register", icon: "sales-order", route: "/sales-register" },
-        { title: "Account Receipts", icon: "money-bills", route: "/account-receipts" },
+        { title: "Sales Register", icon: "sales-order", route: "/sales-register", screen: "Sales Register" },
+        { title: "Account Receipts", icon: "money-bills", route: "/account-receipts", screen: "Account Receipts" },
+        { title: "Counter Receipts", icon: "money-bills", route: "/counter-receipts", screen: "Counter Receipts" },
       ]
     },
   ];
@@ -26,28 +33,30 @@ function Dashboard() {
           <h2 className="text-2xl font-bold mb-4 text-gray-800">{section.header}</h2>
 
           <div className="grid grid-cols-6 gap-10">
-            {section.cards.map((card) => (
-              <Card
-                key={card.title}
-                className="w-full h-[230px] cursor-pointer shadow-md transition-all duration-300 rounded-2xl"
-                onClick={() => navigate(card.route)}
-              >
-                <div className="group w-full h-[230px] flex flex-col justify-between p-4 rounded-2xl border border-gray-200 hover:bg-gray-200 hover:border-gray-400">
-                  <span className="text-lg font-semibold text-gray-800 group-hover:gray-800">
-                    {card.title}
-                  </span>
-                  
-                  <div className="flex justify-start">
-                    <Icon
-                      name={card.icon}
-                      className="text-gray-700 group-hover:gray-800"
-                      style={{height: '3rem', width: '3rem' }}
-                    />
-                  </div>
-                </div>
-              </Card>
+            {section.cards
+              .filter(card => allowedScreens.includes(card.screen))
+              .map((card) => (
+                <Card
+                  key={card.title}
+                  className="w-full h-[230px] cursor-pointer shadow-md transition-all duration-300 rounded-2xl"
+                  onClick={() => navigate(card.route)}
+                >
+                  <div className="group w-full h-[230px] flex flex-col justify-between p-4 rounded-2xl border border-gray-200 hover:bg-gray-200 hover:border-gray-400">
+                    <span className="text-lg font-semibold text-gray-800 group-hover:gray-800">
+                      {card.title}
+                    </span>
 
-            ))}
+                    <div className="flex justify-start">
+                      <Icon
+                        name={card.icon}
+                        className="text-gray-700 group-hover:gray-800"
+                        style={{ height: '3rem', width: '3rem' }}
+                      />
+                    </div>
+                  </div>
+                </Card>
+
+              ))}
           </div>
         </div>
       ))}

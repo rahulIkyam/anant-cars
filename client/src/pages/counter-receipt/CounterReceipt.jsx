@@ -1,25 +1,38 @@
 import React from 'react'
+import { useCounterReceipt } from './CounterReceiptContext';
 import axios from 'axios';
-import { useAccReceipt } from './AccountReceiptContext';
-import "@ui5/webcomponents-icons/dist/edit.js";
-import "@ui5/webcomponents-icons/dist/AllIcons.js";
-import { AnalyticalTable, Bar, BusyIndicator, Button, ComboBox, ComboBoxItem, DatePicker, Dialog, DynamicPage, DynamicPageHeader, DynamicPageTitle, Icon, Label, Tag, Toolbar, ToolbarButton } from '@ui5/webcomponents-react';
-import InvoiceNumberSelector from '../../components/selectors/InvoiceNumberSelector';
-import CustomerNameSelector from '../../components/selectors/CustomerNameSelector';
-import HsnSelector from '../../components/selectors/HsnSelector';
+import "@ui5/webcomponents-icons/dist/money-bills.js";
+import {
+    AnalyticalTable,
+    Bar,
+    BusyIndicator,
+    Button,
+    ComboBox,
+    ComboBoxItem,
+    DatePicker,
+    Dialog,
+    DynamicPage,
+    DynamicPageHeader,
+    DynamicPageTitle,
+    Icon,
+    Label,
+    Tag,
+    Toolbar,
+    ToolbarButton
+} from '@ui5/webcomponents-react';
 
-function AccountReceipt() {
+function CounterReceipt() {
 
     const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-    const { accountState, setAccountState } = useAccReceipt();
+    const { counterState, setCounterState } = useCounterReceipt();
     const {
         loading, error, toDate, fromDate, park, tableData, totalCount,
         selectedRowIds, selectedRowsData, showDialog
-    } = accountState;
+    } = counterState;
 
     const updateState = (updates) => {
-        setAccountState(prev => ({ ...prev, ...updates }));
+        setCounterState(prev => ({ ...prev, ...updates }));
     };
 
     const enableMultiSelect = park === '' || park === '03';
@@ -124,7 +137,7 @@ function AccountReceipt() {
         const formattedFromDate = formatDate(fromDate);
         const formattedToDate = formatDate(toDate);
 
-        const res = await axios.get(`${API_BASE}/api/accReceiptDateFilter`, {
+        const res = await axios.get(`${API_BASE}/api/counterReceiptDateFilter`, {
             params: { fromDate: formattedFromDate, toDate: formattedToDate }
         });
         return res.data;
@@ -140,7 +153,7 @@ function AccountReceipt() {
                 toDate: formattedToDate,
                 status: park !== undefined ? park : ''
             };
-            const res = await axios.get(`${API_BASE}/api/accReceiptParkStatus`, { params });
+            const res = await axios.get(`${API_BASE}/api/counterReceiptParkStatus`, { params });
 
             const responseData = res.data?.d || res.data || {};
 
@@ -193,7 +206,6 @@ function AccountReceipt() {
         }
     };
 
-
     const handlePost = async () => {
         if (selectedRowsData === 0) {
             console.log("No rows selected");
@@ -205,7 +217,7 @@ function AccountReceipt() {
             const promises = selectedRowsData.map(row => {
                 const uuid = row.SAP_UUID;
                 return axios.patch(
-                    `${API_BASE}/api/updateAccReceiptStatus/update-status`,
+                    `${API_BASE}/api/updateCounterReceiptStatus/update-status`,
                     { status },
                     {
                         params: { uuid },
@@ -334,35 +346,37 @@ function AccountReceipt() {
                             </Toolbar>
                         }
                     >
-                        <Tag icon={<Icon name='money-bills' />}>Account Receipt</Tag>
+                        <Tag icon={<Icon name='money-bills' />}>Counter Receipt</Tag>
                     </DynamicPageTitle>
                 }
                 showFooter='true'
                 footerArea={
                     enableMultiSelect && (
-                        <Bar
-                            design='FloatingFooter'
-                            style={{
-                                margin: '5rem 0 0 0',
-                                borderRadius: '0',
-                                border: 'none',
-                                boxShadow: '0 -2px 5px rgba(0,0,0,0.1)'
-                            }}
-                            endContent={
-                                <Button
-                                    design="Positive"
-                                    style={{
-                                        backgroundColor: enablePostButton ? '#2563eb' : '#cccccc',
-                                        color: 'white',
-                                        border: 'none'
-                                    }}
-                                    onClick={handlePost}
-                                    disabled={!enablePostButton}
-                                >
-                                    Post
-                                </Button>
-                            }
-                        />
+                        <div className='pl-0 pr-0'>
+                            <Bar
+                                design='FloatingFooter'
+                                style={{
+                                    margin: '5rem 0 0 0',
+                                    borderRadius: '0',
+                                    border: 'none',
+                                    boxShadow: '0 -2px 5px rgba(0,0,0,0.1)'
+                                }}
+                                endContent={
+                                    <Button
+                                        design="Positive"
+                                        style={{
+                                            backgroundColor: enablePostButton ? '#2563eb' : '#cccccc',
+                                            color: 'white',
+                                            border: 'none'
+                                        }}
+                                        onClick={handlePost}
+                                        disabled={!enablePostButton}
+                                    >
+                                        Post
+                                    </Button>
+                                }
+                            />
+                        </div>
                     )
                 }
                 style={{
@@ -393,7 +407,9 @@ function AccountReceipt() {
                     headerText='Information'
                     footer={
                         <Button
-                            onClick={() => updateState({ showDialog: false })}>OK</Button>
+                            onClick={() => updateState({ showDialog: false })}>
+                            OK
+                        </Button>
                     }
                 >
                     <p>
@@ -407,4 +423,4 @@ function AccountReceipt() {
     )
 }
 
-export default AccountReceipt
+export default CounterReceipt

@@ -11,6 +11,7 @@ import "@ui5/webcomponents-icons/dist/supplier.js";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMaster } from '../pages/master/MasterContext';
 import { useAccReceipt } from '../pages/account-receipt/AccountReceiptContext';
+import { useCounterReceipt } from '../pages/counter-receipt/CounterReceiptContext';
 
 function Sidebar({ collapsed }) {
   const navigate = useNavigate();
@@ -18,6 +19,13 @@ function Sidebar({ collapsed }) {
   const navRef = useRef(null);
   const { resetMasterState } = useMaster();
   const { resetAccountReceiptState } = useAccReceipt();
+  const { resetCounterReceiptState } = useCounterReceipt();
+
+  const resetAllStates = () => {
+    resetMasterState();
+    resetAccountReceiptState();
+    resetCounterReceiptState();
+  };
 
   const pathToIdMap = {
     "/dashboard": "dashboard",
@@ -37,24 +45,33 @@ function Sidebar({ collapsed }) {
     }
   }, [location.pathname]);
 
+
+  const permissions = JSON.parse(sessionStorage.getItem("permissions")) || [];
+  const allowedScreens = permissions
+    .filter(p => p.Permissions_Text !== "No")
+    .map(p => p.Screen)
+
+
   const handleSelect = (e) => {
     const selectedId = e.detail.item.id;
 
     switch (selectedId) {
       case "dashboard":
-        resetMasterState();
-        resetAccountReceiptState();
-        navigate("/dashboard",);
+        resetAllStates();
+        navigate("/dashboard");
         break;
       case "sales-register":
-        resetMasterState();
-        resetAccountReceiptState();
+        resetAllStates();
         navigate("/sales-register");
         break;
       case "account-receipts":
-        resetMasterState();
-        resetAccountReceiptState();
+        resetAllStates();
         navigate("/account-receipts");
+        break;
+      case "counter-receipts":
+        resetAllStates();
+        navigate("/counter-receipts");
+        break;
       default:
         break;
     }
@@ -71,8 +88,15 @@ function Sidebar({ collapsed }) {
         <SideNavigationItem icon="" text="" id="" />
         <SideNavigationItem icon="home" text="Dashboard" id="dashboard" />
         <SideNavigationItem icon="documents" text="Application" id="main-application" >
-          <SideNavigationSubItem icon='sales-document' text='Sales Register' id='sales-register' />
-          <SideNavigationSubItem icon='money-bills' text='Account Receipts' id='account-receipts' />
+          {allowedScreens.includes("Sales Register") && (
+            <SideNavigationSubItem icon='sales-document' text='Sales Register' id='sales-register' />
+          )}
+          {allowedScreens.includes("Account Receipts") && (
+            <SideNavigationSubItem icon='money-bills' text='Account Receipts' id='account-receipts' />
+          )}
+          {allowedScreens.includes("Counter Receipts") && (
+            <SideNavigationSubItem icon='money-bills' text='Counter Receipts' id='counter-receipts' />
+          )}
         </SideNavigationItem>
       </SideNavigation>
     </div>
