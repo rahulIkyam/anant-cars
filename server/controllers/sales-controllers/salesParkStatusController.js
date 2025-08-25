@@ -15,12 +15,10 @@ const getSalesParkStatus = async (req, res) => {
         let filter = `CreationDate ge datetime'${fromDate}' and CreationDate le datetime'${toDate}'`;
         
         if (status !== undefined) {
-            filter += ` and Status eq '${status}'`;
+            filter += ` and (Status eq '${status}' or MigoStatus eq '${status}')`;
         }
 
         const salesParkStatusUrl = `${process.env.SAP_BASEURL}${process.env.SALES_PARKPOST_STATUS}?filter=${encodeURIComponent(filter)}&count=allpages`;
-        
-        
         const response = await axios.get(salesParkStatusUrl, {
             headers: { Authorization: `Basic ${basicAuth}`}
         });

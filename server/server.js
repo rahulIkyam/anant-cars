@@ -24,6 +24,10 @@ const accReceiptDateFilterRoutes = require('./routes/account-receipt-routes/accR
 const accReceiptParkStatusRoutes = require('./routes/account-receipt-routes/accReceiptParkParkStatusRoutes');
 const patchAccReceiptStatusRoutes = require('./routes/account-receipt-routes/patchAccReceiptStatusRoutes');
 
+const counterReceiptDateFilterRoutes = require('./routes/counter-receipt-routes/counterReceiptDateFilterRoutes');
+const counterReceiptParkStatusRoutes = require('./routes/counter-receipt-routes/counterReceiptParkStatusRoutes');
+const patchCounterReceiptstatusRoutes = require('./routes/counter-receipt-routes/patchCounterReceiptStatusRoutes');
+
 app.use('/api/sales', salesRoutes);
 app.use('/api/destination', destinationRoutes);
 app.use('/api/login', authRoutes);
@@ -35,6 +39,10 @@ app.use('/api/updateStatus', patchSalesStatusRoutes);
 app.use('/api/accReceiptDateFilter', accReceiptDateFilterRoutes);
 app.use('/api/accReceiptParkStatus', accReceiptParkStatusRoutes);
 app.use('/api/updateAccReceiptStatus', patchAccReceiptStatusRoutes);
+
+app.use('/api/counterReceiptDateFilter', counterReceiptDateFilterRoutes);
+app.use('/api/counterReceiptParkStatus', counterReceiptParkStatusRoutes);
+app.use('/api/updateCounterReceiptStatus', patchCounterReceiptstatusRoutes);
 
 app.listen(PORT, () => {
     console.log(`Backend server running on port ${PORT}`);

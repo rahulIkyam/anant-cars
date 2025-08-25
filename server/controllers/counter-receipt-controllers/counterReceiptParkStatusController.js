@@ -1,6 +1,7 @@
 const axios = require('axios');
 
-const getAccReceiptParkStatus = async (req, res) => {
+
+const getCounterReceiptParkStatus = async (req, res) => {
     try {
         const { fromDate, toDate, status } = req.query;
 
@@ -18,14 +19,13 @@ const getAccReceiptParkStatus = async (req, res) => {
             filter += ` and Status eq '${status}'`;
         }
 
-        const accReceiptParkStatusUrl = `${process.env.SAP_BASEURL}${process.env.ACC_RECEIPT_PARKPOST_STATUS}?filter=${encodeURIComponent(filter)}&count=allpages`;
+        const counterReceiptParkStatusUrl = `${process.env.SAP_BASEURL}${process.env.COUNTER_RECEIPT_PARKPOST_STATUS}?filter=${encodeURIComponent(filter)}&count=allpages`;
 
-        const response = await axios.get(accReceiptParkStatusUrl, {
+        const response = await axios.get(counterReceiptParkStatusUrl, {
             headers: { Authorization: `Basic ${basicAuth}` }
         });
 
         res.json(response.data.d || { __count: "0", results: [] });
-
 
     } catch (error) {
         console.error('Error fetching Park and Post Account Receipt data:', error.message);
@@ -37,4 +37,4 @@ const getAccReceiptParkStatus = async (req, res) => {
     }
 };
 
-module.exports = {getAccReceiptParkStatus};
+module.exports = {getCounterReceiptParkStatus};

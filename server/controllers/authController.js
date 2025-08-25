@@ -12,7 +12,7 @@ const login = async (req, res) => {
         const sapPassword = process.env.SAP_PASSWORD;
         const basicAuth = Buffer.from(`${username}:${sapPassword}`).toString('base64');
 
-        const loginUrl = `${process.env.SAP_BASEURL}${process.env.SAP_LOGIN_URL}?filter=UserName eq '${userEmail}' and Password eq '${password}'`;
+        const loginUrl = `${process.env.SAP_BASEURL}${process.env.SAP_LOGIN_URL}?filter=UserName eq '${userEmail}' and Password eq '${password}'&expand=to_line`;
 
         const response = await axios.get(loginUrl, {
             headers: { Authorization: `Basic ${basicAuth}` }

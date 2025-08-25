@@ -1,15 +1,22 @@
 const axios = require('axios');
 
 const patchSalesStatusController = async (req, res) => {
-    const { status } = req.body;
+    const { status, remarks } = req.body;
     const { uuid } = req.query;
 
     const patchUrl = `${process.env.SAP_BASEURL}${process.env.SALES_PATCH}/${uuid}`;
     try {
 
 
-        if (!uuid || !status) {
-            return res.status(400).json({ error: 'UUID and Status are required' });
+        if (!uuid) {
+            return res.status(400).json({ error: 'UUIDrequired' });
+        }
+
+        let payload = {};
+        if(remarks === "Document Posted successfully") {
+            payload = { MigoStatus: "01"};
+        } else {
+            payload = { Status: "01", MigoStatus: "01" };
         }
 
         const username = process.env.SAP_USERNAME;
@@ -18,7 +25,7 @@ const patchSalesStatusController = async (req, res) => {
 
 
         const response = await axios.patch(patchUrl,
-            { Status: status },
+            payload,
             {
                 headers: {
                     Authorization: `Basic ${basicAuth}`,
