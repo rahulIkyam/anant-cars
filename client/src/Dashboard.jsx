@@ -5,6 +5,8 @@ import "@ui5/webcomponents-icons/dist/sales-order.js";
 import "@ui5/webcomponents-icons/dist/money-bills.js";
 import "@ui5/webcomponents-icons/dist/group.js";
 import "@ui5/webcomponents-icons/dist/supplier.js";
+import "@ui5/webcomponents-icons/dist/vehicle-repair.js";
+
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ function Dashboard() {
         { title: "Sales Register", icon: "sales-order", route: "/sales-register", screen: "Sales Register" },
         { title: "Account Receipts", icon: "money-bills", route: "/account-receipts", screen: "Account Receipts" },
         { title: "Counter Receipts", icon: "money-bills", route: "/counter-receipts", screen: "Counter Receipts" },
+        { title: "New Vehicle Purchase", icon: "vehicle-repair", route: "/new-vehicle-purchase", screen: "New Vehicle Purchase" },
       ]
     },
   ];

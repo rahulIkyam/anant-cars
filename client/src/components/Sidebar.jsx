@@ -7,11 +7,13 @@ import "@ui5/webcomponents-icons/dist/group.js";
 import "@ui5/webcomponents-icons/dist/documents.js";
 import "@ui5/webcomponents-icons/dist/sales-document.js";
 import "@ui5/webcomponents-icons/dist/money-bills.js";
+import "@ui5/webcomponents-icons/dist/vehicle-repair.js";
 import "@ui5/webcomponents-icons/dist/supplier.js";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMaster } from '../pages/master/MasterContext';
 import { useAccReceipt } from '../pages/account-receipt/AccountReceiptContext';
 import { useCounterReceipt } from '../pages/counter-receipt/CounterReceiptContext';
+import { useNewVehiclePurchase } from '../pages/new-vehicle-purchase/NewVehiclePurchaseContext';
 
 function Sidebar({ collapsed }) {
   const navigate = useNavigate();
@@ -20,11 +22,14 @@ function Sidebar({ collapsed }) {
   const { resetMasterState } = useMaster();
   const { resetAccountReceiptState } = useAccReceipt();
   const { resetCounterReceiptState } = useCounterReceipt();
+  const { resetNewVehiclePurchaseState } = useNewVehiclePurchase();
+
 
   const resetAllStates = () => {
     resetMasterState();
     resetAccountReceiptState();
     resetCounterReceiptState();
+    resetNewVehiclePurchaseState();
   };
 
   const pathToIdMap = {
@@ -32,7 +37,7 @@ function Sidebar({ collapsed }) {
     "/master": "main-master",
     "/edit-master": "main-master",
     "/account-receipts": "account-receipts",
-    "/vendor-master": "vendor",
+    "/new-vehicle-purchase": "new-vehicle-purchase",
   };
 
   useEffect(() => {
@@ -72,6 +77,10 @@ function Sidebar({ collapsed }) {
         resetAllStates();
         navigate("/counter-receipts");
         break;
+      case "new-vehicle-purchase":
+        resetAllStates();
+        navigate("/new-vehicle-purchase");
+        break;
       default:
         break;
     }
@@ -96,6 +105,9 @@ function Sidebar({ collapsed }) {
           )}
           {allowedScreens.includes("Counter Receipts") && (
             <SideNavigationSubItem icon='money-bills' text='Counter Receipts' id='counter-receipts' />
+          )}
+          {allowedScreens.includes("New Vehicle Purchase") && (
+            <SideNavigationSubItem icon='vehicle-repair' text='New Vehicle Purchase' id='new-vehicle-purchase' />
           )}
         </SideNavigationItem>
       </SideNavigation>
